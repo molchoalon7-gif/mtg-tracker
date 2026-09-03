@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapTournament } from "@/lib/data";
+import type { TournamentRow } from "@/lib/data";
 import type { Tournament } from "@/lib/types";
 
 export default function TournamentsPage() {
@@ -11,11 +12,24 @@ export default function TournamentsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.from("tournaments").select("id,name,format,platform,starts_at,player_count,source,registration_url,source_url").gte("starts_at", new Date().toISOString()).order("starts_at").then(({ data }) => {
-      setEvents((data ?? []).map((row) => mapTournament(row as never)));
+    let active = true;
+
+    async function load() {
+      const supabase = createClient();
+      const result = await supabase
+        .from("tournaments")
+        .select("id,name,format,platform,starts_at,player_count,source,registration_url,source_url")
+        .gte("starts_at", new Date().toISOString())
+        .order("starts_at");
+
+      if (!active) return;
+      const rows = (result.data ?? []) as TournamentRow[];
+      setEvents(rows.map(mapTournament));
       setLoading(false);
-    });
+    }
+
+    void load();
+    return () => { active = false; };
   }, []);
 
   const formats = useMemo(() => ["All", ...Array.from(new Set(events.map((event) => event.format)))], [events]);
