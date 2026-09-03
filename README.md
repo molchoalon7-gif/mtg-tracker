@@ -1,35 +1,25 @@
 # ManaPair
 
-Minimal Magic: The Gathering tournament software for player-run events.
+Minimal community tournament software for Magic: The Gathering.
 
-## Core features
+## Current features
+- User-created asynchronous or scheduled tournaments
+- Required Scryfall-validated decklists with private-until-complete visibility
+- Automatic unique-opponent pairings that adapt to actual registration count
+- Player score reporting, disputes, admin corrections, co-admins and cancellation
+- Standings and player history
+- Globally unique usernames and friends
+- Light/dark themes and full mobile navigation
+- Pairing-only email contact: registered email is readable only by the account owner or a current opponent in an active tournament
+- Versioned Terms of Service acceptance and Privacy Notice
 
-- Player-created asynchronous or scheduled tournaments
-- Required private decklist submission with Scryfall card validation
-- Automatic unique-opponent pairings based on actual registration count
-- Organizer-selected target matches per player with fair automatic adjustment when needed
-- Best-of-three score reporting and 3/1/0 standings
-- Score disputes and tournament-admin corrections
-- Tournament owners can add co-admins by unique username
-- Admin-only tournament cancellation
-- Unique usernames and friend requests
-- Player profiles with lifetime record, win rate and tournament history
-- Decklists become public only after a tournament is completed
-- Persistent light/dark mode
-- Minimal motion/blur transitions and slide-over format selection
+## Security model
+Private records are protected in Supabase with Row Level Security. Login emails are stored separately from public profiles. No service-role or secret key belongs in frontend code or this repository.
 
 ## Stack
+Next.js 16, React 19, Supabase Auth/Postgres/RLS, Vercel, Scryfall.
 
-- Next.js + TypeScript
-- Supabase Auth + Postgres + Row Level Security
-- Scryfall card data
-- Vercel
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-Copy `.env.example` to `.env.local` if you want to override the public Supabase configuration.
+## Run
+1. Copy `.env.example` to `.env.local` and add the public Supabase URL + publishable key.
+2. `npm install`
+3. `npm run dev`
