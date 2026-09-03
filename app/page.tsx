@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { StatCard } from "@/components/StatCard";
 import { createClient } from "@/lib/supabase/client";
 import { mapMatch, mapTournament } from "@/lib/data";
+import type { MatchRow, TournamentRow } from "@/lib/data";
 import { getMatchStats } from "@/lib/stats";
 import type { Match, Tournament } from "@/lib/types";
 
@@ -24,7 +25,8 @@ export default function HomePage() {
         supabase.from("tournaments").select("id,name,format,platform,starts_at,player_count,source,registration_url,source_url").gte("starts_at", new Date().toISOString()).order("starts_at").limit(5),
       ]);
       if (!active) return;
-      setTournaments((tournamentResult.data ?? []).map((row) => mapTournament(row as never)));
+      const tournamentRows = (tournamentResult.data ?? []) as TournamentRow[];
+      setTournaments(tournamentRows.map(mapTournament));
 
       const user = userData.user;
       setSignedIn(Boolean(user));
@@ -34,7 +36,8 @@ export default function HomePage() {
           supabase.from("decks").select("id", { count: "exact", head: true }),
         ]);
         if (!active) return;
-        setMatches((matchResult.data ?? []).map((row) => mapMatch(row as never)));
+        const matchRows = (matchResult.data ?? []) as MatchRow[];
+        setMatches(matchRows.map(mapMatch));
         setDeckCount(deckResult.count ?? 0);
       }
       setLoading(false);
