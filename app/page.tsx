@@ -1,104 +1,16 @@
 "use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { StatCard } from "@/components/StatCard";
-import { createClient } from "@/lib/supabase/client";
-import { mapMatch, mapTournament } from "@/lib/data";
-import type { MatchRow, TournamentRow } from "@/lib/data";
-import { getMatchStats } from "@/lib/stats";
-import type { Match, Tournament } from "@/lib/types";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { fmtDate } from "@/lib/date";
+import type { Tournament } from "@/lib/types";
 
-export default function HomePage() {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [deckCount, setDeckCount] = useState(0);
-  const [signedIn, setSignedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      const supabase = createClient();
-      const [{ data: userData }, tournamentResult] = await Promise.all([
-        supabase.auth.getUser(),
-        supabase.from("tournaments").select("id,name,format,platform,starts_at,player_count,source,registration_url,source_url").gte("starts_at", new Date().toISOString()).order("starts_at").limit(5),
-      ]);
-      if (!active) return;
-      const tournamentRows = (tournamentResult.data ?? []) as TournamentRow[];
-      setTournaments(tournamentRows.map(mapTournament));
-
-      const user = userData.user;
-      setSignedIn(Boolean(user));
-      if (user) {
-        const [matchResult, deckResult] = await Promise.all([
-          supabase.from("matches").select("id,played_at,format,deck_id,opponent_deck,result,games_won,games_lost,games_drawn,play_draw,round,notes,decks(name),tournaments(name)").order("played_at", { ascending: false }).limit(6),
-          supabase.from("decks").select("id", { count: "exact", head: true }),
-        ]);
-        if (!active) return;
-        const matchRows = (matchResult.data ?? []) as MatchRow[];
-        setMatches(matchRows.map(mapMatch));
-        setDeckCount(deckResult.count ?? 0);
-      }
-      setLoading(false);
-    }
-    void load();
-    return () => { active = false; };
-  }, []);
-
-  const stats = useMemo(() => getMatchStats(matches), [matches]);
-
-  return (
-    <>
-      <section className="hero">
-        <div>
-          <p className="eyebrow">Magic: The Gathering performance tracker</p>
-          <h1>Track the games. Find the edge.</h1>
-          <p className="muted">Log matches, measure deck performance, study matchups, and keep upcoming online tournaments in one place.</p>
-        </div>
-        <Link className="primary" href={signedIn ? "/matches" : "/login"}>{signedIn ? "Log a match" : "Start tracking"}</Link>
-      </section>
-
-      <section className="stats-grid">
-        <StatCard label="Matches" value={loading ? "—" : stats.total} />
-        <StatCard label="Win rate" value={loading ? "—" : `${stats.winRate}%`} hint={signedIn ? `${stats.wins}-${stats.losses}-${stats.draws}` : "Sign in to track"} />
-        <StatCard label="Your decks" value={loading ? "—" : deckCount} />
-        <StatCard label="Upcoming events" value={loading ? "—" : tournaments.length} />
-      </section>
-
-      <div className="two-col">
-        <section className="panel">
-          <div className="section-head"><h2>Recent matches</h2><Link href="/matches">View all</Link></div>
-          {!signedIn && !loading ? <Empty title="Your match history starts here" text="Sign in, create a deck, and your results will appear on this dashboard." action="Sign in" href="/login" /> : null}
-          {signedIn && !loading && matches.length === 0 ? <Empty title="No matches yet" text="Log your first match to start building matchup and win-rate data." action="Log match" href="/matches" /> : null}
-          <div className="list">
-            {matches.slice(0, 4).map((match) => (
-              <article className="match-row" key={match.id}>
-                <span className={`result result-${match.result.toLowerCase()}`}>{match.result}</span>
-                <div><strong>{match.deck}</strong><small>vs {match.opponentDeck} · {match.format}</small></div>
-                <b>{match.score}</b>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="panel">
-          <div className="section-head"><h2>Upcoming tournaments</h2><Link href="/tournaments">View all</Link></div>
-          {!loading && tournaments.length === 0 ? <Empty title="No upcoming events" text="The tournament feed is ready for the next imported event." action="Open calendar" href="/tournaments" /> : null}
-          <div className="list">
-            {tournaments.slice(0, 4).map((event) => (
-              <article className="event-row" key={event.id}>
-                <div><strong>{event.name}</strong><small>{event.platform} · {event.format}</small></div>
-                <time>{new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(event.startsAt))}</time>
-              </article>
-            ))}
-          </div>
-        </section>
-      </div>
-    </>
-  );
-}
-
-function Empty({ title, text, action, href }: { title: string; text: string; action: string; href: string }) {
-  return <div className="empty-state"><strong>{title}</strong><span>{text}</span><Link href={href}>{action} →</Link></div>;
+export default function HomePage(){
+ const [events,setEvents]=useState<Tournament[]>([]); const [loading,setLoading]=useState(true); const [filter,setFilter]=useState<"open"|"active"|"history">("open");
+ useEffect(()=>{void supabase().from("tournaments").select("*").order("starts_at",{ascending:true}).then(({data})=>{setEvents((data??[]) as Tournament[]);setLoading(false)})},[]);
+ const shown=events.filter((e)=>filter==="open"?e.status==="registration":filter==="active"?e.status==="active":e.status==="completed");
+ return <><section className="hero"><div><p className="eyebrow">Magic tournaments, without the clutter</p><h1>Pair. Play. Report.</h1><p className="muted">Create a tournament, collect private decklists, generate fair pairings and let players report their own results.</p></div><Link className="primary" href="/create">Create tournament</Link></section>
+ <div className="tabs"><button className={filter==="open"?"tab active":"tab"} onClick={()=>setFilter("open")}>Registration</button><button className={filter==="active"?"tab active":"tab"} onClick={()=>setFilter("active")}>In progress</button><button className={filter==="history"?"tab active":"tab"} onClick={()=>setFilter("history")}>History</button></div>
+ {loading?<div className="empty">Loading tournaments…</div>:shown.length===0?<div className="empty"><strong>{filter==="history"?"No tournament history yet":"Nothing here yet"}</strong><span>{filter==="open"?"Create the first tournament and invite players to register.":filter==="active"?"Active tournaments will appear here once pairings are generated.":"Completed tournaments and public decklists will appear here."}</span></div>:<div className="cards">{shown.map((event)=><Link className="panel t-card" key={event.id} href={`/tournaments/${event.id}`}><div className="meta"><span className="pill">{event.format}</span><span className="pill">{event.mode==="async"?"Async":"Scheduled"}</span><span className={`pill status status-${event.status}`}>{event.status}</span></div><h2>{event.name}</h2><p className="muted">{event.description||`${event.matches_per_player} matches per player`}</p><div className="t-bottom"><span>{fmtDate(event.starts_at)} → {fmtDate(event.ends_at)}</span><span>View →</span></div></Link>)}</div>}
+ </>;
 }

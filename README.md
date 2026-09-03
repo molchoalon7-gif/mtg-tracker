@@ -1,41 +1,17 @@
-# MTG Tracker
+# ManaPair
 
-A live Magic: The Gathering match, deck-performance, and online tournament tracker built with Next.js + Supabase.
+Minimal tournament software for Magic: The Gathering.
 
-## V0.2 features
-- Supabase email/password authentication
-- Private match history protected by Row Level Security
-- Persistent deck creation and deck win-rate tracking
-- Match logging with score, play/draw, round, and notes
-- Public upcoming tournament calendar
-- Seeded official September 2026 MTGO Premier Play events with source links
-- Responsive dashboard
-- Next.js 16 / Node 22 deployment setup
+Players can create tournaments, register with private decklists, receive automatic unique-opponent pairings, report match scores, dispute incorrect results, and keep permanent tournament history. Tournament admins can correct any score. Decklists remain private to the player and tournament admin until the tournament is completed, then become visible in event history.
 
-## Environment
-The app reads:
+Card names are validated against Scryfall's complete Magic card catalog. Scryfall requests are proxied server-side with an identifying User-Agent and cached where appropriate.
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-NEXT_PUBLIC_SITE_URL=
-```
-
-For the first connected deployment, the public Supabase URL and publishable key also have a safe source-code fallback. Never add a Supabase secret/service-role key to frontend code.
-
-## Database
-Apply `supabase/migrations/001_initial_schema.sql` to the linked Supabase project.
+## Stack
+Next.js 16, React 19, Supabase Auth/Postgres/RLS, Vercel.
 
 ## Run
-```bash
-npm install
-npm run dev
-```
+1. Copy `.env.example` to `.env.local` and add the public Supabase URL + publishable key.
+2. `npm install`
+3. `npm run dev`
 
-## Next product work
-1. Automated tournament source adapters (MTGO schedule/decklists first)
-2. Scryfall autocomplete + decklist parsing
-3. Matchup matrix and format/deck filters
-4. Tournament result imports and deck metagame stats
-5. Public player/deck profiles
-6. MTGO/Arena CSV imports
+No secret/service-role key belongs in this repository.

@@ -1,18 +1,28 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
+import { AccountMenu } from "@/components/AccountMenu";
 
 export const metadata: Metadata = {
-  title: "MTG Tracker",
-  description: "Track Magic: The Gathering matches, decks and tournaments.",
+  title: "ManaPair",
+  description: "Clean Magic: The Gathering tournament software.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>
-        <Nav />
-        <main className="container">{children}</main>
+        <header className="topbar">
+          <Link className="brand" href="/">ManaPair</Link>
+          <nav>
+            <Link href="/">Tournaments</Link>
+            <Link href="/create">Create</Link>
+            <Link href="/profile">Profile</Link>
+            <AccountMenu />
+          </nav>
+        </header>
+        <main className="shell">{children}</main>
+        <footer>ManaPair · tournament software for Magic players</footer>
       </body>
     </html>
   );
