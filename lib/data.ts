@@ -1,6 +1,6 @@
 import type { Match, Tournament } from "./types";
 
-type MatchRow = {
+export type MatchRow = {
   id: string;
   played_at: string;
   format: string;
@@ -17,7 +17,7 @@ type MatchRow = {
   tournaments: { name: string } | { name: string }[] | null;
 };
 
-type TournamentRow = {
+export type TournamentRow = {
   id: string;
   name: string;
   format: string;
