@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import "./mobile-legal.css";
 import { AccountMenu } from "@/components/AccountMenu";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { MobileMenu } from "@/components/MobileMenu";
+import { MatchupContacts } from "@/components/MatchupContacts";
 import { PageMotion } from "@/components/PageMotion";
+import { TermsGate } from "@/components/TermsGate";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "ManaPair",
@@ -19,17 +23,22 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <header className="topbar">
           <Link className="brand" href="/">ManaPair</Link>
-          <nav>
+          <nav className="desktop-nav">
             <Link href="/">Tournaments</Link>
             <Link href="/create">Create</Link>
             <Link href="/friends">Friends</Link>
             <Link href="/profile">Profile</Link>
+            <Link href="/terms">Terms</Link>
             <ThemeToggle />
             <AccountMenu />
           </nav>
+          <MobileMenu />
         </header>
-        <main className="shell"><PageMotion>{children}</PageMotion></main>
-        <footer>ManaPair · tournament software for Magic players</footer>
+        <TermsGate>
+          <main className="shell"><PageMotion>{children}</PageMotion></main>
+          <MatchupContacts />
+        </TermsGate>
+        <footer><span>ManaPair · community tournament software for Magic players</span><span className="footer-links"><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link></span></footer>
       </body>
     </html>
   );
