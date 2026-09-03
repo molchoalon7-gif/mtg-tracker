@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mapMatch } from "@/lib/data";
+import type { MatchRow } from "@/lib/data";
 import type { Match, MatchResult } from "@/lib/types";
 import { getMatchStats } from "@/lib/stats";
 
@@ -45,7 +46,8 @@ export default function MatchesPage() {
       setDeckId(loadedDecks[0].id);
       setFormat(loadedDecks[0].format);
     }
-    setMatches((matchResult.data ?? []).map((row) => mapMatch(row as never)));
+    const loadedMatches = (matchResult.data ?? []) as MatchRow[];
+    setMatches(loadedMatches.map(mapMatch));
   }
 
   function chooseDeck(id: string) {
