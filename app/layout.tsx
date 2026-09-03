@@ -2,26 +2,33 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { AccountMenu } from "@/components/AccountMenu";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { PageMotion } from "@/components/PageMotion";
 
 export const metadata: Metadata = {
   title: "ManaPair",
   description: "Clean Magic: The Gathering tournament software.",
 };
 
+const themeBoot = `(()=>{try{const s=localStorage.getItem('manapair-theme');const d=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=d}catch{}})()`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: themeBoot }} /></head>
       <body>
         <header className="topbar">
           <Link className="brand" href="/">ManaPair</Link>
           <nav>
             <Link href="/">Tournaments</Link>
             <Link href="/create">Create</Link>
+            <Link href="/friends">Friends</Link>
             <Link href="/profile">Profile</Link>
+            <ThemeToggle />
             <AccountMenu />
           </nav>
         </header>
-        <main className="shell">{children}</main>
+        <main className="shell"><PageMotion>{children}</PageMotion></main>
         <footer>ManaPair · tournament software for Magic players</footer>
       </body>
     </html>

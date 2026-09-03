@@ -1,17 +1,35 @@
 # ManaPair
 
-Minimal tournament software for Magic: The Gathering.
+Minimal Magic: The Gathering tournament software for player-run events.
 
-Players can create tournaments, register with private decklists, receive automatic unique-opponent pairings, report match scores, dispute incorrect results, and keep permanent tournament history. Tournament admins can correct any score. Decklists remain private to the player and tournament admin until the tournament is completed, then become visible in event history.
+## Core features
 
-Card names are validated against Scryfall's complete Magic card catalog. Scryfall requests are proxied server-side with an identifying User-Agent and cached where appropriate.
+- Player-created asynchronous or scheduled tournaments
+- Required private decklist submission with Scryfall card validation
+- Automatic unique-opponent pairings based on actual registration count
+- Organizer-selected target matches per player with fair automatic adjustment when needed
+- Best-of-three score reporting and 3/1/0 standings
+- Score disputes and tournament-admin corrections
+- Tournament owners can add co-admins by unique username
+- Admin-only tournament cancellation
+- Unique usernames and friend requests
+- Player profiles with lifetime record, win rate and tournament history
+- Decklists become public only after a tournament is completed
+- Persistent light/dark mode
+- Minimal motion/blur transitions and slide-over format selection
 
 ## Stack
-Next.js 16, React 19, Supabase Auth/Postgres/RLS, Vercel.
 
-## Run
-1. Copy `.env.example` to `.env.local` and add the public Supabase URL + publishable key.
-2. `npm install`
-3. `npm run dev`
+- Next.js + TypeScript
+- Supabase Auth + Postgres + Row Level Security
+- Scryfall card data
+- Vercel
 
-No secret/service-role key belongs in this repository.
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Copy `.env.example` to `.env.local` if you want to override the public Supabase configuration.
