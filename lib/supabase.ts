@@ -17,6 +17,18 @@ export function validUsername(value: string) {
   return /^[a-z0-9_]{3,24}$/.test(value);
 }
 
+export function isGeneratedUsername(value: string) {
+  return /^player_[a-f0-9]{8}$/i.test(value);
+}
+
+export function normalizeIsraeliPhone(value: string) {
+  return value.replace(/[^0-9]/g, "").slice(0, 10);
+}
+
+export function validIsraeliMobilePhone(value: string) {
+  return /^05[0-9]{8}$/.test(normalizeIsraeliPhone(value));
+}
+
 export async function ensureProfile(user: User) {
   const db = supabase();
   const { data } = await db.from("profiles").select("user_id,username").eq("user_id", user.id).maybeSingle();
