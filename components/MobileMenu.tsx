@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const links = [
   ["Tournaments", "/"],
   ["Create tournament", "/create"],
+  ["Decks", "/decks"],
   ["Friends", "/friends"],
   ["Profile & settings", "/profile"],
   ["Terms", "/terms"],
