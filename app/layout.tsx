@@ -3,11 +3,13 @@ import Link from "next/link";
 import "./globals.css";
 import "./mobile-legal.css";
 import { AccountMenu } from "@/components/AccountMenu";
+import { GeneratedUsernameGuard } from "@/components/GeneratedUsernameGuard";
 import { MobileMenu } from "@/components/MobileMenu";
 import { MatchupContacts } from "@/components/MatchupContacts";
 import { PageMotion } from "@/components/PageMotion";
 import { TermsGate } from "@/components/TermsGate";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { TournamentAdminTools } from "@/components/TournamentAdminTools";
 
 export const metadata: Metadata = {
   title: "ManaPair",
@@ -21,6 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: themeBoot }} /></head>
       <body>
+        <GeneratedUsernameGuard />
         <header className="topbar">
           <Link className="brand" href="/">ManaPair</Link>
           <nav className="desktop-nav">
@@ -37,6 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </header>
         <TermsGate>
           <main className="shell"><PageMotion>{children}</PageMotion></main>
+          <TournamentAdminTools />
           <MatchupContacts />
         </TermsGate>
         <footer><span>ManaPair · community tournament software for Magic players</span><span className="footer-links"><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link></span></footer>
