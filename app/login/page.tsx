@@ -35,7 +35,7 @@ export default function LoginPage() {
       if(data.user && data.session){
         try{
           await ensureProfile(data.user);
-          const {error:phoneError}=await db.rpc("set_contact_phone",{p_phone:cleanPhone});
+          const {error:phoneError}=await db.from("user_contacts").update({phone:cleanPhone}).eq("user_id",data.user.id);
           if(phoneError)throw phoneError;
           const {error:termsError}=await db.from("legal_acceptances").insert({user_id:data.user.id,terms_version:CURRENT_TERMS_VERSION});
           if(termsError && termsError.code!=="23505")throw termsError;
