@@ -25,7 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <GeneratedUsernameGuard />
         <header className="topbar">
-          <Link className="brand" href="/">ManaPair</Link>
+          <Link className="brand" href="/" aria-label="ManaPair home"><span className="brand-mark" aria-hidden="true"><i/><i/></span><span>ManaPair</span></Link>
           <nav className="desktop-nav">
             <Link href="/">Tournaments</Link>
             <Link href="/create">Create</Link>
