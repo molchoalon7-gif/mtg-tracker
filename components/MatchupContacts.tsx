@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-type Contact = { user_id:string; email:string };
+type Contact = { user_id:string; email:string; phone:string|null };
 type Profile = { user_id:string; display_name:string };
 type Match = { player_a:string; player_b:string };
 
@@ -31,7 +31,7 @@ export function MatchupContacts() {
       const opponents=Array.from(new Set(((matches??[]) as Match[]).map((m)=>m.player_a===uid?m.player_b:m.player_a)));
       if(!opponents.length)return;
       const [{data:contactRows},{data:profileRows}]=await Promise.all([
-        db.from("user_contacts").select("user_id,email").in("user_id",opponents),
+        db.from("user_contacts").select("user_id,email,phone").in("user_id",opponents),
         db.from("profiles").select("user_id,display_name").in("user_id",opponents),
       ]);
       if(!active)return;
@@ -43,7 +43,7 @@ export function MatchupContacts() {
 
   if(!tournamentId||!contacts.length)return null;
   return <div className="matchup-contact-dock">
-    {open?<div className="matchup-contact-card"><div className="matchup-contact-head"><h3>Match contacts</h3><button className="quiet-button" onClick={()=>setOpen(false)}>Close</button></div>{contacts.map((contact)=><div className="contact-row" key={contact.user_id}><div><strong>{contact.display_name}</strong><div className="tiny">Current opponent</div></div><a href={`mailto:${contact.email}?subject=${encodeURIComponent(`ManaPair · ${eventName}`)}`}>Email</a></div>)}<p className="contact-privacy">Contact details are available only for active pairings and only for tournament coordination.</p></div>:null}
+    {open?<div className="matchup-contact-card"><div className="matchup-contact-head"><h3>Match contacts</h3><button className="quiet-button" onClick={()=>setOpen(false)}>Close</button></div>{contacts.map((contact)=><div className="contact-row" key={contact.user_id}><div><strong>{contact.display_name}</strong><div className="tiny">Current opponent</div></div><div className="contact-actions"><a href={`mailto:${contact.email}?subject=${encodeURIComponent(`ManaPair · ${eventName}`)}`}>Email</a>{contact.phone?<a href={`tel:${contact.phone}`}>{contact.phone}</a>:null}</div></div>)}<p className="contact-privacy">Email addresses and phone numbers are available only to players paired against each other in active tournaments, and only for tournament coordination.</p></div>:null}
     <button className="primary matchup-contact-toggle" onClick={()=>setOpen((v)=>!v)}>{contacts.length===1?"Contact opponent":`Match contacts · ${contacts.length}`}</button>
   </div>;
 }
