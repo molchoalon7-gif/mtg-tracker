@@ -24,7 +24,7 @@ export default function DecksPage(){
   const [decks,setDecks]=useState<SavedDeck[]>([]);
   const [editingId,setEditingId]=useState<string|null>(null);
   const [name,setName]=useState("");
-  const [format,setFormat]=useState("Modern");
+  const [format,setFormat]=useState("");
   const [deckText,setDeckText]=useState("");
   const [search,setSearch]=useState("");
   const [message,setMessage]=useState("");
@@ -47,11 +47,11 @@ export default function DecksPage(){
   const shownDecks=useMemo(()=>{
     const q=search.trim().toLowerCase();
     if(!q)return decks;
-    return decks.filter((deck)=>deck.name.toLowerCase().includes(q)||deck.format.toLowerCase().includes(q));
+    return decks.filter((deck)=>deck.name.toLowerCase().includes(q)||(deck.format?.toLowerCase().includes(q)??false));
   },[decks,search]);
 
-  function resetEditor(){setEditingId(null);setName("");setFormat("Modern");setDeckText("")}
-  function edit(deck:SavedDeck){setEditingId(deck.id);setName(deck.name);setFormat(deck.format);setDeckText(deckToText(deck));setMessage("");window.scrollTo({top:0,behavior:"smooth"})}
+  function resetEditor(){setEditingId(null);setName("");setFormat("");setDeckText("")}
+  function edit(deck:SavedDeck){setEditingId(deck.id);setName(deck.name);setFormat(deck.format??"");setDeckText(deckToText(deck));setMessage("");window.scrollTo({top:0,behavior:"smooth"})}
 
   async function save(e:FormEvent){
     e.preventDefault(); if(!user)return;
@@ -64,7 +64,7 @@ export default function DecksPage(){
       if(validated.notFound?.length)throw new Error(`Unknown card${validated.notFound.length>1?"s":""}: ${validated.notFound.join(", ")}`);
       const byName=new Map((validated.cards??[]).map((card)=>[card.name.toLowerCase(),card]));
       const cards:DeckCard[]=parsed.map((entry)=>{const card=byName.get(entry.name.toLowerCase());return {card_name:card?.name||entry.name,scryfall_id:card?.id||null,oracle_id:card?.oracle_id||null,quantity:entry.quantity,section:entry.section}});
-      const {error}=await supabase().rpc("save_user_deck",{p_deck_id:editingId,p_name:name.trim(),p_format:format,p_cards:cards});
+      const {error}=await supabase().rpc("save_user_deck",{p_deck_id:editingId,p_name:name.trim(),p_format:format.trim()||null,p_cards:cards});
       if(error)throw error;
       const wasEditing=Boolean(editingId); resetEditor(); await load(); setMessage(wasEditing?"Deck updated.":"Deck saved to your library.");
     }catch(error){setMessage(error instanceof Error?error.message:"Could not save deck.")}finally{setBusy(false)}
@@ -90,7 +90,7 @@ export default function DecksPage(){
       <div className="grid">
         <section className="panel"><div className="form"><label>Find a deck<input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search by deck name or format"/></label></div></section>
         {shownDecks.length===0?<div className="empty compact"><strong>{decks.length?"No decks match":"No saved decks yet"}</strong><span>{decks.length?"Try a different search.":"Create your first reusable deck on the right."}</span></div>:<div className="grid grid-2">{shownDecks.map((deck)=><section className="panel" key={deck.id}>
-          <div className="meta"><span className="pill">{deck.format}</span><span className="pill">{cardCount(deck,"main")} main</span>{cardCount(deck,"sideboard")?<span className="pill">{cardCount(deck,"sideboard")} side</span>:null}</div>
+          <div className="meta">{deck.format?<span className="pill">{deck.format}</span>:null}<span className="pill">{cardCount(deck,"main")} main</span>{cardCount(deck,"sideboard")?<span className="pill">{cardCount(deck,"sideboard")} side</span>:null}</div>
           <h2>{deck.name}</h2><p className="tiny">Updated {new Date(deck.updated_at).toLocaleDateString()}</p>
           <details><summary className="quiet-button">View decklist</summary><DeckPreview deck={deck}/></details>
           <div className="actions"><button className="secondary" disabled={busy} onClick={()=>edit(deck)}>Edit</button><button className="danger" disabled={busy} onClick={()=>void remove(deck)}>Delete</button></div>
@@ -98,7 +98,7 @@ export default function DecksPage(){
       </div>
       <aside className="panel registration-box"><p className="eyebrow">{editingId?"Edit deck":"New deck"}</p><h2>{editingId?"Update saved deck":"Add to Decks"}</h2><form className="form" onSubmit={save}>
         <label>Deck name<input value={name} onChange={(e)=>setName(e.target.value)} maxLength={80} placeholder="Jeskai Control" required/></label>
-        <label>Format<FormatPicker value={format} onChange={setFormat}/></label>
+        <label>Format <span className="hint">optional</span><FormatPicker value={format} onChange={setFormat} allowEmpty/></label>
         <label>Decklist<textarea className="decklist-textarea" value={deckText} onChange={(e)=>setDeckText(e.target.value)} placeholder={'4 Lightning Bolt\n4 Counterspell\n...\n\nSideboard:\n2 Dispel\n...'} required/><span className="hint">Use “quantity card name”. Card names are validated with Scryfall before the deck is saved.</span></label>
         <div className="privacy-note"><strong>Private library.</strong> Other users cannot browse your saved decks. A tournament only receives a frozen copy after you choose that deck to register.</div>
         <div className="actions"><button className="primary" disabled={busy||!name.trim()||!deckText.trim()}>{busy?"Saving…":editingId?"Update deck":"Save deck"}</button>{editingId?<button type="button" className="secondary" disabled={busy} onClick={resetEditor}>Cancel</button>:null}</div>
