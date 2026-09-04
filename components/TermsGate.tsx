@@ -47,9 +47,10 @@ export function TermsGate({ children }: { children: React.ReactNode }) {
     {needsGate ? <div className="terms-gate-backdrop">
       <section className="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-title">
         <p className="eyebrow">Before you continue</p>
-        <h2 id="terms-title">Community tournament terms</h2>
+        <h2 id="terms-title">Updated matchup contact terms</h2>
         <p className="muted">ManaPair is a non-commercial coordination and record-keeping tool. It does not run your tournament, handle prizes or payments, supervise matches, or take responsibility for conduct or agreements outside the service.</p>
-        <p className="muted">For matchup coordination, your registered email can be shown only to the opponent you are currently paired against in an active tournament.</p>
+        <p className="muted">For matchup coordination, both your registered email address and mobile phone number can be shown only to players you are currently paired against in an active tournament. They are not public profile information.</p>
+        <p className="muted">Phone numbers are format-checked as Israeli mobile numbers but are not SMS-verified. Account confirmation remains through email.</p>
         <div className="terms-gate-links"><Link href="/terms">Read Terms of Service</Link><Link href="/privacy">Read Privacy Notice</Link></div>
         {message ? <div className="message error">{message}</div> : null}
         <button className="primary" disabled={busy} onClick={() => void accept()}>{busy ? "Saving…" : "I agree and continue"}</button>
