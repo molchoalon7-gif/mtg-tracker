@@ -25,4 +25,5 @@ export type Standing = { tournament_id:string; user_id:string; display_name:stri
 export type MatchRow = { id:string; tournament_id:string; player_a:string; player_b:string; round_number:number; player_a_wins:number|null; player_b_wins:number|null; status:"pending"|"reported"; reported_by:string|null };
 export type DeckCard = { card_name:string; scryfall_id:string|null; oracle_id:string|null; quantity:number; section:"main"|"sideboard" };
 export type Decklist = { id:string; tournament_id:string; user_id:string; name:string|null; submitted_at:string };
+export type UserDeck = { id:string; user_id:string; name:string; format:string; created_at:string; updated_at:string };
 export type Friendship = { id:string; requester_id:string; addressee_id:string; status:"pending"|"accepted"; created_at:string; updated_at:string };
